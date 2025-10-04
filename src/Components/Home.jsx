@@ -1,8 +1,10 @@
 import gsap from "gsap";
-import { SplitText } from "gsap/all";
+import { ScrollTrigger,SplitText } from "gsap/all";
 import { useGSAP } from "@gsap/react";
-import { use, useRef } from "react";
-import { toQuery, useMediaQuery } from "react-responsive";
+import { useRef } from "react";
+import { useMediaQuery } from "react-responsive";
+
+gsap.registerPlugin(SplitText, ScrollTrigger);
 
 
 const Home = () => {
@@ -19,98 +21,200 @@ const Home = () => {
     const paragraphSplit = new SplitText(".subheadline", { type: "words,chars" });
     const stats = new SplitText(".statssection",{type:"words"})
     headlineSplit.chars.forEach((char) => char.classList.add("text-gradient"));
-    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
     const cards = [card1Ref.current, card2Ref.current, card3Ref.current];
     
+    // Set will-change for performance
+    gsap.set([headlineSplit.chars, paragraphSplit.chars, stats.words, searchBarRef.current, ctaButtonsRef.current.children, cards], {
+      willChange: "transform"
+    });
 
     gsap.from(headlineSplit.chars, {
-       yPercent: 200,
-      duration: 3,
-      ease: "expo.out",
+       yPercent: isMobile ? 50 : 80,
+      duration: isMobile ? 1.5 : 2.5,
+      ease: "back.out(1.7)",
+      force3D: true,
       stagger: {
-        amount: 0.5,
-        from: "end",
+        amount: 0.3,
+        from: "start",
       },
     });
 
     gsap.from(paragraphSplit.chars, {
      opacity: 0,
-      yPercent: 100,
-      duration: 1.8,
-      ease: "expo.out",
+      yPercent: isMobile ? 30 : 60,
+      duration: isMobile ? 1.2 : 1.5,
+      ease: "power2.out",
+      force3D: true,
       stagger: {
-        amount: 0.5,
-        from: "random",
+        amount: 0.2,
+        from: "start",
       },
-      delay: 1.5,
+      delay: isMobile ? 0.8 : 1.2,
     });
 
     tl.fromTo(
       searchBarRef.current,
       {
-        y: 50,
+        y: isMobile ? 30 : 50,
         opacity: 0,
-        scale: 0.95,
+        scale: 0.98,
       },
       {
         y: 0,
         opacity: 1,
         scale: 1,
-        duration: 0.8,
-        delay: 2,
+        duration: isMobile ? 0.6 : 0.8,
+        delay: isMobile ? 1.2 : 1.8,
+        force3D: true,
       }
     );
      tl.fromTo(
       ctaButtonsRef.current.children,
       {
-        y: 30,
+        y: isMobile ? 20 : 30,
         opacity: 0,
       },
       {
         y: 0,
         opacity: 1,
         duration: 0.6,
-        stagger: 0.15,
+        stagger: isMobile ? 0.1 : 0.15,
         ease: "power2.out",
+        force3D: true,
       },
-      '-=0.4' // Start slightly before search bar animation ends
+      '-=0.3'
     );
-    gsap.from(stats.words,{
+    
+    tl.from(stats.words,{
        opacity: 0,
-      yPercent: 100,
-      duration: 1.8,
-      ease: "expo.out",
+      yPercent: isMobile ? 30 : 50,
+      duration: isMobile ? 1.0 : 1.3,
+      ease: "power2.out",
+      force3D: true,
       stagger: {
-        amount: 0.5,
-        from: "random",
+        amount: 0.2,
+        from: "start",
       },
-
-    },'-=0.01')
+    },'-=0.5')
 
     gsap.fromTo(
       cards,
       {
-        x: 500,
+        x: isMobile ? 80 : 500,
         opacity: 0,
-        rotate: 20,
-        scale: 0.7,
+        rotate: isMobile ? 10 : 15,
+        scale: 0.85,
       },
       {
         x: 0,
         opacity: 1,
         rotate: 0,
         scale: 1,
-        duration: 2,
-        stagger: 1,
-        ease: 'power2.inout',
+        duration: isMobile ? 1.2 : 3,
+        stagger: isMobile ? 0.2 : 0.25,
+        ease: 'back.out(1.7)',
+        force3D: true,
         scrollTrigger: {
           trigger: cards[0],
-          start: 'top 80%',
-          toggleActions: 'play none none none',
+          start: 'top 90%',
+          end: 'bottom 20%',
+          toggleActions: 'play none none reverse',
         },
-      },"-=0.04"
+      }
     );
+     // Add hover animations for each card
+    cards.forEach((card) => {
+      const img = card.querySelector('img');
+      const priceTag = card.querySelector('.absolute');
 
+      card.addEventListener('mouseenter', () => {
+        gsap.to(img, {
+          scale: 1.1,
+          duration: 0.5,
+          ease: 'power2.out',
+        });
+        gsap.to(priceTag, {
+          y: -10,
+          scale: 1.05,
+          duration: 0.3,
+          ease: 'back.out(1.7)',
+        });
+      });
+
+      card.addEventListener('mouseleave', () => {
+        gsap.to(img, {
+          scale: 1,
+          duration: 0.5,
+          ease: 'power2.out',
+        });
+        gsap.to(priceTag, {
+          y: 0,
+          scale: 1,
+          duration: 0.3,
+          ease: 'power2.inOut',
+        });
+      });
+    });
+      // Add hover animations for each card
+    cards.forEach((card) => {
+      const img = card.querySelector('img');
+      const priceTag = card.querySelector('.absolute');
+
+      card.addEventListener('mouseenter', () => {
+        gsap.to(img, {
+          scale: 1.1,
+          duration: 0.5,
+          ease: 'power2.out',
+        });
+        gsap.to(priceTag, {
+          y: -10,
+          scale: 1.05,
+          duration: 0.3,
+          ease: 'back.out(1.7)',
+        });
+      });
+
+      card.addEventListener('mouseleave', () => {
+        gsap.to(img, {
+          scale: 1,
+          duration: 0.5,
+          ease: 'power2.out',
+        });
+        gsap.to(priceTag, {
+          y: 0,
+          scale: 1,
+          duration: 0.3,
+          ease: 'power2.inOut',
+        });
+      });
+    });
+    const buttons = ctaButtonsRef.current.querySelectorAll('button');
+    buttons.forEach((button) => {
+      button.addEventListener('mouseenter', () => {
+        gsap.to(button, {
+          scale: 1.05,
+          duration: 0.3,
+          ease: 'power2.out',
+        });
+      });
+
+      button.addEventListener('mouseleave', () => {
+        gsap.to(button, {
+          scale: 1,
+          duration: 0.3,
+          ease: 'power2.out',
+        });
+      });
+    });
+
+    // Clear will-change after animations complete
+    gsap.delayedCall(5, () => {
+      gsap.set([headlineSplit.chars, paragraphSplit.chars, stats.words, searchBarRef.current, ctaButtonsRef.current.children, cards], {
+        clearProps: "willChange"
+      });
+    });
+   
 
   })
 
@@ -187,7 +291,7 @@ const Home = () => {
         {/* Right Side */}
         <div className="w-full lg:w-2/5 flex flex-col justify-center items-center p-4 sm:p-4 space-y-2 sm:space-y-2 relative">
           {/* Image Cards */}
-          <div ref={card1Ref} className="relative w-full max-w-sm lg:max-w-none">
+          <div ref={card1Ref} className="relative w-full max-w-sm lg:max-w-none will-change-transform">
             <img
               src="/LuxuryVilla.jpg"
               alt="House 1"
@@ -199,7 +303,7 @@ const Home = () => {
             </div>
           </div>
 
-          <div ref={card2Ref} className="relative w-full max-w-sm lg:max-w-none">
+          <div ref={card2Ref} className="relative w-full max-w-sm lg:max-w-none will-change-transform">
             <img
               src="/Estate_home.jpg"
               alt="House 2"
@@ -211,7 +315,7 @@ const Home = () => {
             </div>
           </div>
 
-          <div ref={card3Ref} className="relative w-full max-w-sm lg:max-w-none">
+          <div ref={card3Ref} className="relative w-full max-w-sm lg:max-w-none will-change-transform">
             <img
               src="/mordern_appartment.jpg"
               alt="House 3"
