@@ -7,12 +7,21 @@ import { toQuery, useMediaQuery } from "react-responsive";
 
 const Home = () => {
   const isMobile = useMediaQuery({ maxWidth: 767 });
+   const searchBarRef = useRef(null);
+   const ctaButtonsRef = useRef(null);
+   const card1Ref = useRef(null);
+   const card2Ref = useRef(null);
+   const card3Ref = useRef(null);
 
   // GSAP Animations
   useGSAP(() => {
     const headlineSplit = new SplitText(".headline", { type: "words,chars" });
     const paragraphSplit = new SplitText(".subheadline", { type: "words,chars" });
+    const stats = new SplitText(".statssection",{type:"words"})
     headlineSplit.chars.forEach((char) => char.classList.add("text-gradient"));
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    const cards = [card1Ref.current, card2Ref.current, card3Ref.current];
+    
 
     gsap.from(headlineSplit.chars, {
        yPercent: 200,
@@ -35,6 +44,74 @@ const Home = () => {
       },
       delay: 1.5,
     });
+
+    tl.fromTo(
+      searchBarRef.current,
+      {
+        y: 50,
+        opacity: 0,
+        scale: 0.95,
+      },
+      {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        duration: 0.8,
+        delay: 2,
+      }
+    );
+     tl.fromTo(
+      ctaButtonsRef.current.children,
+      {
+        y: 30,
+        opacity: 0,
+      },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.6,
+        stagger: 0.15,
+        ease: "power2.out",
+      },
+      '-=0.4' // Start slightly before search bar animation ends
+    );
+    gsap.from(stats.words,{
+       opacity: 0,
+      yPercent: 100,
+      duration: 1.8,
+      ease: "expo.out",
+      stagger: {
+        amount: 0.5,
+        from: "random",
+      },
+
+    },'-=0.01')
+
+    gsap.fromTo(
+      cards,
+      {
+        x: 500,
+        opacity: 0,
+        rotate: 20,
+        scale: 0.7,
+      },
+      {
+        x: 0,
+        opacity: 1,
+        rotate: 0,
+        scale: 1,
+        duration: 2,
+        stagger: 1,
+        ease: 'power2.inout',
+        scrollTrigger: {
+          trigger: cards[0],
+          start: 'top 80%',
+          toggleActions: 'play none none none',
+        },
+      },"-=0.04"
+    );
+
+
   })
 
   return (
@@ -57,7 +134,7 @@ const Home = () => {
           </p>
 
           {/* Search Bar */}
-          <div className="searchbar mt-6 sm:mt-8 bg-white shadow-lg rounded-xl flex flex-col sm:flex-row items-stretch sm:items-center px-4 py-3 gap-3 sm:gap-4">
+          <div ref={searchBarRef} className="searchbar mt-6 sm:mt-8 bg-white shadow-lg rounded-xl flex flex-col sm:flex-row items-stretch sm:items-center px-4 py-3 gap-3 sm:gap-4">
             <input
               type="text"
               placeholder="Location"
@@ -81,7 +158,7 @@ const Home = () => {
           </div>
 
           {/* CTAs */}
-          <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <div  ref={ctaButtonsRef} className="mt-4 sm:mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4">
             <button className="btn-gold w-full sm:w-auto text-sm sm:text-base py-3">
               Explore Properties
             </button>
@@ -91,7 +168,7 @@ const Home = () => {
           </div>
 
           {/* Stats Section */}
-          <div className="mt-8 sm:mt-10 flex flex-wrap justify-between sm:justify-start gap-6 sm:gap-8 lg:gap-12 text-gray-800 font-semibold">
+          <div className=" statssection mt-8 sm:mt-10 flex flex-wrap justify-between sm:justify-start gap-6 sm:gap-8 lg:gap-12 text-gray-800 font-semibold">
             <div className="text-center sm:text-left">
               <h3 className="text-2xl sm:text-3xl lg:text-4xl">500+</h3>
               <p className="text-gray-500 text-xs sm:text-sm">Properties</p>
@@ -110,7 +187,7 @@ const Home = () => {
         {/* Right Side */}
         <div className="w-full lg:w-2/5 flex flex-col justify-center items-center p-4 sm:p-4 space-y-2 sm:space-y-2 relative">
           {/* Image Cards */}
-          <div className="relative w-full max-w-sm lg:max-w-none">
+          <div ref={card1Ref} className="relative w-full max-w-sm lg:max-w-none">
             <img
               src="/LuxuryVilla.jpg"
               alt="House 1"
@@ -122,7 +199,7 @@ const Home = () => {
             </div>
           </div>
 
-          <div className="relative w-full max-w-sm lg:max-w-none">
+          <div ref={card2Ref} className="relative w-full max-w-sm lg:max-w-none">
             <img
               src="/Estate_home.jpg"
               alt="House 2"
@@ -134,7 +211,7 @@ const Home = () => {
             </div>
           </div>
 
-          <div className="relative w-full max-w-sm lg:max-w-none">
+          <div ref={card3Ref} className="relative w-full max-w-sm lg:max-w-none">
             <img
               src="/mordern_appartment.jpg"
               alt="House 3"
